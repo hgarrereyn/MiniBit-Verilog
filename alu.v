@@ -93,36 +93,69 @@ module alu(o,pre_carry,pre_lt,pre_z,
 endmodule
 
 //Decoder module
-module alu_decoder(d, fl_carry,
+module alu_decoder(bus, fl_carry,
 	a_pass, a_lt, a_rt,
 	b_en, b_inv,
 	o_add, o_nand,
 	carry_add, carry_bit);
 
-	input [7:0] d;
+	input [7:0] bus;
 	input fl_carry;
 
 	output a_pass, a_lt, a_rt, b_en, b_inv, o_add, o_nand, carry_add, carry_bit;
 
-	assign a_pass = d[3];
-	assign a_lt = ~(d[3] & ~d[4]);
-	assign a_rt = ~(d[3] & d[4]);
+	assign a_pass = bus[3];
+	assign a_lt = ~(bus[3] & ~bus[4]);
+	assign a_rt = ~(bus[3] & bus[4]);
 
-	assign b_en = ~(d[5] & ~d[6]);
-	assign b_inv = ~(d[5] & d[6]);
+	assign b_en = ~(bus[5] & ~bus[6]);
+	assign b_inv = ~(bus[5] & bus[6]);
 
-	assign o_add = (~d[3] & d[4]);
-	assign o_nand = ~(~d[3] & d[4]);
+	assign o_add = (~bus[3] & bus[4]);
+	assign o_nand = ~(~bus[3] & bus[4]);
 
 	//logic, carry, and carry is set
-	assign carry_bit = (d[3] & d[7] & fl_carry);
+	assign carry_bit = (bus[3] & bus[7] & fl_carry);
 
 	assign carry_add =
-		~d[3] & //we are adding
+		~bus[3] & //we are adding
 			(
-				(d[5] & d[6] & !d[7]) //Subtraction (force C)
-				| (d[7] & fl_carry) //carry is set
-				| (~d[5] & d[6]) //invert command
+				(bus[5] & bus[6] & !bus[7]) //Subtraction (force C)
+				| (bus[7] & fl_carry) //carry is set
+				| (~bus[5] & bus[6]) //invert command
 			);
+
+endmodule
+
+//Main reg
+//
+// a_direct and b_direct point to the alu
+//
+// A and B read from the bus
+// A and B are always writing to the ALU and write to the Bus with control
+module main_reg(a_direct, b_direct, bus, a_r, a_bus, b_r, b_bus);
+
+	output [7:0] a_direct, b_direct;
+
+	inout [7:0] bus;
+
+	input a_r, a_bus, b_r, b_bus;
+
+	wire [7:0] w0, w1;
+
+	reg r0;
+
+	initial begin
+		r0 <= 1'b0;
+	end
+
+	octal_d_flip_flop q1 (w0, bus, r0, a_r);
+	octal_d_flip_flop q2 (w1, bus, r0, b_r);
+
+	octal_buffer q3 (bus, w0, a_bus);
+	octal_buffer q4 (bus, w1, b_bus);
+
+	assign a_direct = w0;
+	assign b_direct = w1;
 
 endmodule

@@ -9,3 +9,13 @@ My ultimate goal is not to run this code on an FPGA -- *I actually want to build
 # Simulation
 
 I'm using Icarus Verilog for simulation and GTKWave for viewing the waveforms.
+
+To compile and run do:
+
+    iverilog -o out/mini_bit -c source_list.txt
+
+then in the `/out` directory, run:
+
+    vvp mini_bit
+
+Waveforms will be saved to `/out/dump.vcd`.
