@@ -67,12 +67,14 @@ module selector(o, a, b, o_add, o_nand);
 endmodule
 
 //ALU Module
-module alu(o,pre_carry,pre_lt,pre_z,
-           a_direct,b_direct,
-           carry_bit,a_pass,a_lt,a_rt,
-           carry_add,
-           b_en,b_inv,
-           o_add,o_nand);
+module alu(
+	o,pre_carry,pre_lt,pre_z,
+	a_direct,b_direct,
+	carry_bit,a_pass,a_lt,a_rt,
+	carry_add,
+	b_en,b_inv,
+	o_add,o_nand
+);
 
   output [7:0] o;
   output pre_carry, pre_lt, pre_z;
@@ -93,11 +95,13 @@ module alu(o,pre_carry,pre_lt,pre_z,
 endmodule
 
 //Decoder module
-module alu_decoder(bus, fl_carry,
+module alu_decoder(
+	bus, fl_carry,
 	a_pass, a_lt, a_rt,
 	b_en, b_inv,
 	o_add, o_nand,
-	carry_add, carry_bit);
+	carry_add, carry_bit
+);
 
 	input [7:0] bus;
 	input fl_carry;
@@ -157,5 +161,38 @@ module main_reg(a_direct, b_direct, bus, a_r, a_bus, b_r, b_bus);
 
 	assign a_direct = w0;
 	assign b_direct = w1;
+
+endmodule
+
+//ALU reg
+module alu_reg(fl_carry, fl_lt, fl_z, bus, o, pre_carry, pre_lt, pre_z, o_r, o_w, flb_r, fl_r);
+
+output fl_carry, fl_lt, fl_z;
+
+inout [7:0] bus;
+
+input [7:0] o;
+
+input pre_carry, pre_lt, pre_z, o_r, o_w, flb_r, fl_r;
+
+wire [7:0] flags_in, flags_out, w0, w1;
+
+assign flags_in = {r0,r0,r0,r0,r0, pre_z, pre_lt, pre_carry};
+
+assign fl_carry = flags_out[0];
+assign fl_lt = flags_out[1];
+assign fl_z = flags_out[2];
+
+reg r0;
+
+initial begin
+	r0 <= 1'b0;
+end
+
+octal_d_flip_flop q1 (w0, o, r0, o_r);
+octal_buffer q2 (bus, w0, o_w);
+
+octal_d_flip_flop q3 (w1, flags_in, r0, flb_r);
+octal_d_flip_flop q4 (flags_out, w1, r0, fl_r);
 
 endmodule

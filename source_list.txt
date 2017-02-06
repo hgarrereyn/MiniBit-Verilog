@@ -1,4 +1,8 @@
 base_components.v
 alu.v
+ram.v
+sequencer.v
 
-test.v
+mini_bit.v
+
+test3.v
