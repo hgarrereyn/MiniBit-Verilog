@@ -45,7 +45,7 @@ module seq_decoder(
 	assign inc_dec = (~int_direct[2] & ~int_direct[3]) & ~op;
 	assign inc = inc_dec & int_direct[6];
 	assign dec = inc_dec & int_direct[7];
-	assign gojmp = jmp & (int_direct[5] | (int_direct[6] & fl_lt) | (int_direct[7] & fl_z));
+	assign gojmp = jmp & (int_direct[5] | (int_direct[6] & fl_lt) | (int_direct[7] & ~fl_z));
 
 endmodule
 
@@ -135,7 +135,7 @@ module controller(
 	assign val_r = f[2] & store_val;
 
 	assign ip_w = ~(f[0] | (f[2] & store_val));
-	assign m_w = ~(write_ram & (f[4] | f[5]));
+	assign m_w = ~((write_ram & (f[4] | f[5])) | (f[4] & read_ram));
 	assign ram_w = ~(~ip_w | ~m_w);
 	assign ram_r = f[4] & read_ram;
 
@@ -214,7 +214,7 @@ module sequencer(
 	ram_w, ram_r,
 	int_r, int_w,
 	val_r, val_w,
-	tx,
+	tx, hlt,
 
 	int_direct, timer_clear, reg_clear, jam_f, rx,
 	fl_lt, fl_z,
@@ -243,7 +243,7 @@ module sequencer(
 	wire [5:0] f0, f1; //f is buffered
 
 	//Loopback
-	wire hlt;
+	output wire hlt;
 
 	//Reg read buffer
 	wire a_rb, b_rb, ip_rb, m_rb, int_rb, val_rb;

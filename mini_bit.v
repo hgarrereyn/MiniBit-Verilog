@@ -1,7 +1,7 @@
-module mini_bit (bus, clk, rx, tx, timer_clear, reg_clear, jam_f);
+module mini_bit (bus, clk, rx, tx, hlt, timer_clear, reg_clear, jam_f);
 
 	inout [7:0] bus;
-	output tx;
+	output tx, hlt;
 	input clk, rx, timer_clear, reg_clear, jam_f;
 
 	//Intermediate wires
@@ -74,7 +74,7 @@ module mini_bit (bus, clk, rx, tx, timer_clear, reg_clear, jam_f);
 		ram_w, ram_r,
 		int_r, int_w,
 		val_r, val_w,
-		tx,
+		tx, hlt,
 
 		int_direct, timer_clear, reg_clear, jam_f, rx,
 		fl_lt, fl_z,
